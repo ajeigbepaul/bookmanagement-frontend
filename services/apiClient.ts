@@ -20,5 +20,8 @@ export async function apiFetch(
   if (!res.ok) {
     throw new Error(await res.text());
   }
-  return res.json();
+  if (res.status === 204) return; // No Content
+  const text = await res.text();
+  if (!text) return; // Empty body
+  return JSON.parse(text);
 }

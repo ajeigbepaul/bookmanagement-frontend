@@ -56,3 +56,46 @@ export async function unfollowUser(userId: number | string) {
     method: "DELETE",
   });
 }
+
+export async function fetchCurrentUser() {
+  return apiFetch(`${API_URL}/users/me`);
+}
+
+export async function fetchUserFollowers(userId: number | string) {
+  return apiFetch(`${API_URL}/users/${userId}/followers`);
+}
+
+export async function fetchUserFollowing(userId: number | string) {
+  return apiFetch(`${API_URL}/users/${userId}/following`);
+}
+
+export async function updateProfile(data: {
+  username?: string;
+  email?: string;
+}) {
+  return apiFetch(`${API_URL}/users/me`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function createBook({
+  title,
+  author,
+  description,
+}: {
+  title: string;
+  author: string;
+  description: string;
+}) {
+  return apiFetch(`${API_URL}/books`, {
+    method: "POST",
+    body: JSON.stringify({ title, author, description }),
+  });
+}
+
+export async function deleteBook(id: number | string) {
+  return apiFetch(`${API_URL}/books/${id}`, {
+    method: "DELETE",
+  });
+}

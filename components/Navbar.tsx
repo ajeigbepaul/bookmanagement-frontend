@@ -2,6 +2,13 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import UserAvatar from "@/components/UserAvatar";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -13,20 +20,25 @@ export default function Navbar() {
           BookManagement
         </Link>
         <div className="flex gap-4 items-center">
-          <Link href="/books" className="text-gray-700 hover:text-blue-600">
-            Books
-          </Link>
+          
           {user ? (
-            <>
-              <Link href="/profile">
-                <Button variant="ghost" size="sm">
-                  {user.username}
-                </Button>
-              </Link>
-              <Button variant="outline" size="sm" onClick={logout}>
-                Logout
-              </Button>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="focus:outline-none">
+                  <UserAvatar username={user.username} size={36} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                
+                  <DropdownMenuItem asChild>
+                   
+                      <Link href="/profile">Profile</Link>
+                    
+                  </DropdownMenuItem>
+                
+                <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <>
               <Link href="/login">
