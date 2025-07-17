@@ -83,19 +83,54 @@ export async function createBook({
   title,
   author,
   description,
+  genre,
+  coverImageUrl,
 }: {
   title: string;
   author: string;
   description: string;
+  genre: string;
+  coverImageUrl?: string;
 }) {
   return apiFetch(`${API_URL}/books`, {
     method: "POST",
-    body: JSON.stringify({ title, author, description }),
+    body: JSON.stringify({
+      title,
+      author,
+      description,
+      genre,
+      ...(coverImageUrl ? { coverImageUrl } : {}),
+    }),
   });
 }
 
 export async function deleteBook(id: number | string) {
   return apiFetch(`${API_URL}/books/${id}`, {
     method: "DELETE",
+  });
+}
+
+export async function updateBook(id: number | string, data: any) {
+  return apiFetch(`${API_URL}/books/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export async function fetchReviews(bookId: number | string) {
+  return apiFetch(`${API_URL}/books/${bookId}/reviews`);
+}
+
+export async function fetchAverageRating(bookId: number | string) {
+  return apiFetch(`${API_URL}/books/${bookId}/reviews/average`);
+}
+
+export async function createReview(
+  bookId: number | string,
+  data: { content: string; rating: number }
+) {
+  return apiFetch(`${API_URL}/books/${bookId}/reviews`, {
+    method: "POST",
+    body: JSON.stringify(data),
   });
 }

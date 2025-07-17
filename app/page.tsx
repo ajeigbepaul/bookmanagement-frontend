@@ -57,10 +57,17 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative overflow-x-hidden">
+      {/* More visible edge gradient background */}
+      <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+        <div className="absolute inset-0">
+          <div className="absolute -top-32 -left-32 w-[60vw] h-[60vw] rounded-full bg-blue-200/20 blur-2xl" />
+          <div className="absolute -bottom-32 -right-32 w-[60vw] h-[60vw] rounded-full bg-purple-200/20 blur-2xl" />
+        </div>
+      </div>
       {/* Header/Navbar */}
       <Navbar />
-      <div className="max-w-4xl mx-auto p-8">
+      <div className="max-w-4xl mx-auto p-8 relative z-10">
         <Breadcrumb
           items={[{ label: "Home", href: "/" }, { label: "Books" }]}
         />
@@ -95,19 +102,17 @@ export default function HomePage() {
         {isLoading ? (
           <Loader />
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             {data?.data?.length === 0 && <p>No books found.</p>}
             {data?.data?.map((book: any) => (
               <BookCard
                 key={book.id}
+                id={book.id}
                 title={book.title}
                 author={book.author}
                 description={book.description}
                 createdAt={book.createdAt}
                 onView={() => router.push(`/books/${book.id}`)}
-                onEdit={
-                  user ? () => router.push(`/books/${book.id}/edit`) : undefined
-                }
                 onDelete={
                   user
                     ? () => {
@@ -120,28 +125,66 @@ export default function HomePage() {
                 commentsCount={book.commentsCount}
                 followersCount={book.followersCount}
                 followingCount={book.followingCount}
+                coverImageUrl={book.coverImageUrl}
               />
             ))}
           </div>
         )}
         {/* Pagination controls */}
-        <div className="flex gap-2 mt-6 justify-center">
-          <button
-            className="px-3 py-1 border rounded"
-            disabled={filter.page <= 1}
-            onClick={() => setFilter({ page: filter.page - 1 })}
-          >
-            Prev
-          </button>
-          <span>Page {filter.page}</span>
-          <button
-            className="px-3 py-1 border rounded"
-            disabled={data && data.data.length < filter.limit}
-            onClick={() => setFilter({ page: filter.page + 1 })}
-          >
-            Next
-          </button>
-        </div>
+        {data && data.total > filter.limit && (
+          <div className="flex gap-2 mt-8 justify-center items-center">
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={filter.page <= 1}
+              onClick={() => setFilter({ page: filter.page - 1 })}
+            >
+              Prev
+            </Button>
+            {/* Page numbers */}
+            {Array.from({
+              length: Math.ceil(data.total / filter.limit),
+            })
+              .map((_, i) => i + 1)
+              .filter(
+                (pageNum) =>
+                  pageNum === 1 ||
+                  pageNum === Math.ceil(data.total / filter.limit) ||
+                  Math.abs(pageNum - filter.page) <= 2
+              )
+              .map((pageNum, idx, arr) => [
+                idx > 0 && pageNum - arr[idx - 1] > 1 ? (
+                  <span key={`ellipsis-${pageNum}`}>...</span>
+                ) : null,
+                <Button
+                  key={pageNum}
+                  variant={pageNum === filter.page ? "default" : "ghost"}
+                  size="sm"
+                  className={`rounded-full px-3 font-semibold ${
+                    pageNum === filter.page
+                      ? "bg-blue-600 text-white hover:bg-blue-700"
+                      : "hover:bg-blue-100"
+                  }`}
+                  onClick={() => setFilter({ page: pageNum })}
+                  disabled={pageNum === filter.page}
+                >
+                  {pageNum}
+                </Button>,
+              ])}
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-full"
+              disabled={
+                data && filter.page >= Math.ceil(data.total / filter.limit)
+              }
+              onClick={() => setFilter({ page: filter.page + 1 })}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <DialogContent>
